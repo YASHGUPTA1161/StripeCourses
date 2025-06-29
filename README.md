@@ -1,7 +1,10 @@
 https://stripe-courses-git-main-yash-guptas-projects-3b3b56f0.vercel.app
+
+
+
+
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
-
 ## Getting Started
 
 First, run the development server:
