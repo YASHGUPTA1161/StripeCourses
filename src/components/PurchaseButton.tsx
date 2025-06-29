@@ -2,7 +2,7 @@
 
 import { useUser } from "@clerk/nextjs";
 import { Id } from "../../convex/_generated/dataModel";
-import { useAction, useQuery } from "convex/react"; // Removed useAction
+import { useAction, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Button } from "./ui/button";
 import { Loader2Icon } from "lucide-react";
@@ -14,7 +14,6 @@ const PurchaseButton = ({ courseId }: { courseId: Id<"courses"> }) => {
 	const userData = useQuery(api.users.getUserByClerkId, user ? { clerkId: user?.id } : "skip");
 	const [isLoading, setIsLoading] = useState(false);
 
-	// 🔴 Temporarily disabled due to Stripe setup not ready
 	const createCheckoutSession = useAction(api.stripe.createCheckoutSession);
 
 	const userAccess = useQuery(
@@ -33,20 +32,17 @@ const PurchaseButton = ({ courseId }: { courseId: Id<"courses"> }) => {
 		setIsLoading(true);
 
 		try {
-			// 🔴 Temporarily disabled due to Stripe setup not ready
 			const { checkoutUrl } = await createCheckoutSession({ courseId });
 			if (checkoutUrl) {
 				window.location.href = checkoutUrl;
 			} else {
 				throw new Error("Failed to create checkout session");
 			}
-
-			toast.info("Stripe not set up yet. Purchase coming soon.");
-		} catch (error: any) {
-			if (error.message?.includes("Rate limit exceeded")) {
+		} catch (error: unknown) {
+			if (error instanceof Error && error.message?.includes("Rate limit exceeded")) {
 				toast.error("You've tried too many times. Please try again later.");
 			} else {
-				toast.error(error.message || "Something went wrong. Please try again later.");
+				toast.error(error instanceof Error ? error.message : "Something went wrong. Please try again later.");
 			}
 			console.log(error);
 		} finally {
@@ -54,26 +50,30 @@ const PurchaseButton = ({ courseId }: { courseId: Id<"courses"> }) => {
 		}
 	};
 
-	if (!userAccess.hasAccess) {
-		return (
-			<Button variant={"outline"} onClick={handlePurchase} disabled={isLoading}>
-				Enroll Now
-			</Button>
-		);
-	}
-
-	if (userAccess.hasAccess) {
-		return <Button variant={"outline"}>Enrolled</Button>;
-	}
-
 	if (isLoading) {
 		return (
-			<Button>
+			<Button disabled>
 				<Loader2Icon className='mr-2 size-4 animate-spin' />
 				Processing...
 			</Button>
 		);
 	}
+
+	// If user has subscription access, show "Pro Access" instead of "Enrolled"
+	if (userAccess.hasAccess && userAccess.accessType === "subscription") {
+		return <Button variant={"outline"}>Pro Access</Button>;
+	}
+
+	// If user has individual course access, show "Enrolled"
+	if (userAccess.hasAccess && userAccess.accessType === "course") {
+		return <Button variant={"outline"}>Enrolled</Button>;
+	}
+
+	return (
+		<Button variant={"outline"} onClick={handlePurchase}>
+			Enroll Now
+		</Button>
+	);
 };
 
 export default PurchaseButton;

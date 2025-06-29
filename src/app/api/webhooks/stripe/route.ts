@@ -20,8 +20,9 @@ export async function POST(req: Request) {
 	try {
 		event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET!);
 		console.log("Webhook signature verified, event type:", event.type);
-	} catch (err: any) {
-		console.log(`Webhook signature verification failed.`, err.message);
+	} catch (err: unknown) {
+		const error = err as Error;
+		console.log(`Webhook signature verification failed.`, error.message);
 		return new Response("Webhook signature verification failed.", { status: 400 });
 	}
 
@@ -45,8 +46,9 @@ export async function POST(req: Request) {
 				break;
 		}
 		console.log("Webhook processing completed successfully");
-	} catch (error: any) {
-		console.error(`Error processing webhook (${event.type}):`, error);
+	} catch (error: unknown) {
+		const err = error as Error;
+		console.error(`Error processing webhook (${event.type}):`, err);
 		return new Response("Error processing webhook", { status: 400 });
 	}
 
@@ -154,8 +156,9 @@ async function handleSubscriptionUpsert(subscription: Stripe.Subscription, event
 				}),
 			});
 		}
-	} catch (error) {
-		console.error(`Error processing ${eventType} for subscription ${subscription.id}:`, error);
+	} catch (error: unknown) {
+		const err = error as Error;
+		console.error(`Error processing ${eventType} for subscription ${subscription.id}:`, err);
 	}
 }
 
@@ -165,7 +168,8 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
 			stripeSubscriptionId: subscription.id,
 		});
 		console.log(`Successfully deleted subscription ${subscription.id}`);
-	} catch (error) {
-		console.error(`Error deleting subscription ${subscription.id}:`, error);
+	} catch (error: unknown) {
+		const err = error as Error;
+		console.error(`Error deleting subscription ${subscription.id}:`, err);
 	}
 }

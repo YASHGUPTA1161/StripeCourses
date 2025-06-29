@@ -3,7 +3,7 @@
 import { useUser } from "@clerk/nextjs";
 import { useAction, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
-import { PRO_PLANS } from "@/constants"; // 🔴 Temporarily commented due to error
+import { PRO_PLANS } from "@/constants";
 import {
 	Card,
 	CardContent,
@@ -48,8 +48,8 @@ const ProPage = () => {
 			if (result.checkoutUrl) {
 				window.location.href = result.checkoutUrl;
 			}
-		} catch (error: any) {
-			if (error.message.includes("Rate limit exceeded")) {
+		} catch (error: unknown) {
+			if (error instanceof Error && error.message.includes("Rate limit exceeded")) {
 				toast.error("You've tried too many times. Please try again later.");
 			} else {
 				toast.error("There was an error initiating your purchase. Please try again.");
@@ -76,7 +76,6 @@ const ProPage = () => {
 				</div>
 			)}
 
-			{// 🔴 Commented out while PRO_PLANS is unavailable
 			<div className='grid md:grid-cols-2 gap-8 items-stretch'>
 				{PRO_PLANS.map((plan) => (
 					<Card
@@ -147,7 +146,6 @@ const ProPage = () => {
 					</Card>
 				))}
 			</div>
-			}
 		</div>
 	);
 };

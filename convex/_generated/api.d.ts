@@ -14,6 +14,7 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as courses from "../courses.js";
+import type * as debug from "../debug.js";
 import type * as http from "../http.js";
 import type * as purchases from "../purchases.js";
 import type * as stripe from "../stripe.js";
@@ -30,6 +31,7 @@ import type * as users from "../users.js";
  */
 declare const fullApi: ApiFromModules<{
   courses: typeof courses;
+  debug: typeof debug;
   http: typeof http;
   purchases: typeof purchases;
   stripe: typeof stripe;
