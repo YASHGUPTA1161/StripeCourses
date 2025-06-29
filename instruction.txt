@@ -1,0 +1,5 @@
+bun run dev
+bunx convex dev
+bunx convex import --table courses courseData.json
+stripe listen --forward-to localhost:3000/api/webhooks/stripe
+bun run email:dev
